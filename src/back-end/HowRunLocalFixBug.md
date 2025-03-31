@@ -1,3 +1,8 @@
+```
+cd src/back-end && python -m venv .venv
+
+source .venv/bin/activate && pip install -r requirements_backend.txt
+```
 ```bash
 uvicorn rag_backend:app --host 0.0.0.0 --port 30002 --reload --log-level debug
 ```
