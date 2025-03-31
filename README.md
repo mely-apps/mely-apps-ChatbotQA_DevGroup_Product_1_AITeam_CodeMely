@@ -6,3 +6,4 @@
 # Link Tài Nguyên: 
 - [Tài Liệu Dự Án](https://csg2ej4iz2hz.sg.larksuite.com/wiki/QYQUwRrv1iXMlekwTWilN52Fgwc?table=tblAOat6jFwzamAK&view=vewjLSGFbM)
 
+![](./ReadMeCodeMelyChatbot.png)
