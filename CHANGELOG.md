@@ -102,3 +102,12 @@ This version marks significant improvements in both source handling and team pre
 
 # Push tag
 git push origin v1.2
+
+```bash
+nội dung gồm các cột: Content - Người đăng - bài đăng - ngày đăng. 
+==
+Bài hôm nọ thì là 2 cột: Content - Question 
+
+======
+(như em đã nói :v , Content là cột chính, các cột khác phụ thui anh ạ ^^)
+```
