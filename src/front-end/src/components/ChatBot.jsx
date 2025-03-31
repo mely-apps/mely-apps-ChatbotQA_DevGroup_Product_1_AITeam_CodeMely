@@ -6,6 +6,7 @@ import { TypeAnimation } from "react-type-animation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMessage } from "@fortawesome/free-regular-svg-icons";
 import logger from '../utils/logger'
+import TeamMembers from './TeamMembers';
 
 function ChatBot(props) {
   const messagesEndRef = useRef(null);
@@ -241,8 +242,6 @@ function ChatBot(props) {
                   key={index}
                   onClick={() => {
                     SetPromptInput(question);
-                    // Optional: auto-send the question
-                    // setTimeout(() => SendMessageChat(), 100);
                   }}
                   className={`p-2 rounded-md cursor-pointer text-sm ${
                     isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'
@@ -253,6 +252,9 @@ function ChatBot(props) {
               ))}
             </div>
           </div>
+
+          {/* Add TeamMembers component below reference questions */}
+          <TeamMembers isDarkMode={isDarkMode} />
         </div>
       
         <div className="w-full md:w-4/5 bg-base-100 shadow-xl rounded-lg flex flex-col justify-between relative">
