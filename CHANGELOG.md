@@ -61,3 +61,44 @@ deploy sau gần 3h rưỡi
 ---
 22h30 31/3 - 2h 01/04
 Tổng 8h cho deploy version 1.2
+
+git tag -a v1.2 -m "Version 1.2 - Enhanced RAG Sources & Team UI
+
+Timeline:
+- Backend deploy: 22:30 31/03 - 02:00 01/04 (3.5h)
+- Frontend deploy: Total 8h for version 1.2
+
+Major Features:
+1. Backend Enhancements:
+- Complete RAG pipeline with detailed source metadata
+- Enhanced metadata structure for sources
+- Improved source relevance scoring
+- New sources field in API response
+- Health check and error handling improvements
+
+2. Frontend Updates:
+- Redesigned source display and interaction
+- Added direct URL access for sources
+- Enhanced error handling
+- Added Team Members section with:
+  + Professional avatars for AI Production team
+  + Integrated social links (LinkedIn, GitHub, Facebook)
+  + Responsive and interactive UI components
+  + Dark/Light mode support
+
+3. UI/UX Improvements:
+- Interactive source references
+- Better visual hierarchy
+- Enhanced mobile responsiveness
+- Improved accessibility
+
+Technical Details:
+- Backend: RAG optimization
+- Frontend: New TeamMembers component
+- API: Enhanced response structure
+- Styling: TailwindCSS improvements
+
+This version marks significant improvements in both source handling and team presentation."
+
+# Push tag
+git push origin v1.2
