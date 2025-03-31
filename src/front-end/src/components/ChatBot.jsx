@@ -19,7 +19,7 @@ function ChatBot(props) {
     [
       "start",
       [
-        "Xin chào! Đây là Trợ lý truy vấn thông tin Luật biển và Quy tắc tránh va quốc tế! Bạn muốn tìm kiếm thông tin về những gì, để mình giúp bạn tìm kiếm thông tin chính xác nhất nha. 😄",
+        "Xin chào! Tôi là trợ lý CodeMely AI BotChat của Dev Ơi Mình Đi Đâu Thế, được phát triển bởi đội ngũ AI CodeMely. Bạn có thể hỏi tôi bất kỳ câu hỏi nào về Luật biển và Quy tắc tránh va quốc tế. Tôi sẽ giúp bạn tìm kiếm thông tin chính xác nhất. 😊",
         null,
       ],
     ],
@@ -29,15 +29,15 @@ function ChatBot(props) {
   );
   const [chatSessions, setChatSessions] = useState([
     { id: 'current', title: 'Cuộc trò chuyện hiện tại', messages: [] },
-    { id: 'past1', title: 'Luật biển quốc tế', messages: [] },
+    { id: 'past1', title: 'Team AI CodeMely', messages: [] },
     { id: 'past2', title: 'Quy định vùng đặc quyền kinh tế', messages: [] },
   ]);
   const [activeChatId, setActiveChatId] = useState('current');
 
   const commonQuestions = [
-    "Trình bày khái niệm, chế độ pháp lý vùng nội thủy theo UNCLOS 1982? Liên hệ vùng nội thủy theo luật biển Việt Nam?",
-    "Trình bày những quy định cấm trong vùng đặc quyền kinh tế, thềm lục địa và quyền truy đuổi tàu thuyền nước ngoài theo luật biển Việt Nam?",
-    "Trình bày khái niệm, chế độ pháp lý biển theo UNCLOS 1982?",
+    "Giải thích khái niệm và ứng dụng của trí tuệ nhân tạo trong lĩnh vực y tế?",
+    "Mô tả các loại giải thuật tìm kiếm và ứng dụng của chúng trong các hệ thống thông tin?",
+    "So sánh và phân biệt giữa học máy và học sâu trong lĩnh vực trí tuệ nhân tạo?",
   ];
 
   //  Sử dụng: isLoading để: Tự động cuộn xuống dưới khi có tin nhắn mới: ?

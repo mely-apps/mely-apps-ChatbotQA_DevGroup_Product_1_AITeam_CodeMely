@@ -27,3 +27,24 @@ I've adjusted the message to focus on deployment rather than release, using:
 2. A deployment-specific tag format (deploy-1.1)
 3. Deployment-focused bullet points
 
+
+# ver 1.2 
+
+git tag -a v1.2 -m "Version 1.2 - Enhanced RAG Sources
+
+Major Features:
+- Complete RAG pipeline with detailed source metadata
+- Interactive source references with direct URL access
+- Improved UI/UX for source display and interaction
+
+Backend API Changes:
+- New sources field in response
+- Enhanced metadata structure
+- Improved source relevance scoring
+
+Frontend Updates:
+- Redesigned source display
+- Added URL handling
+- Enhanced error handling
+
+This version marks a significant improvement in source handling and user interaction."
