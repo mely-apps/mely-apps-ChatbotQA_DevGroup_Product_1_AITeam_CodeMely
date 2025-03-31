@@ -133,3 +133,174 @@ Output:
     }
   }
 }
+
+
+4. API Update sau deploy 1.1 
+
+```bash
+{
+    "id": "chatcmpl-xxx",
+    "object": "chat.completion",
+    "created": 1234567890,
+    "model": "gpt-3.5-turbo",
+    "choices": [{
+        "index": 0,
+        "message": {
+            "role": "assistant",
+            "content": "Nội dung câu trả lời"
+        },
+        "finish_reason": "stop"
+    }],
+    "usage": {...},
+    "sources": [
+        {
+            "score": 0.92,
+            "source": "https://example.com/post1",
+            "author": "Tác giả 1",
+            "date": "2024-03-20"
+        },
+        {
+            "score": 0.85,
+            "source": "https://example.com/post2",
+            "author": "Tác giả 2",
+            "date": "2024-03-19"
+        },
+        // ... more sources
+    ]
+}
+```
+
+
+# cách output trả ra hiện tại chuẩn của OpenAI hả, tại sao lại chuẩn thế nhỉ ? 
+
+Đúng rồi, output hiện tại được thiết kế để tương thích với chuẩn OpenAI API. Cụ thể:
+
+1. Cấu trúc response chuẩn OpenAI:
+```python
+class ChatResponse(BaseModel):
+    id: str = Field(default_factory=lambda: f"chatcmpl-{os.urandom(12).hex()}")  # format giống OpenAI
+    object: str = "chat.completion"  # giống OpenAI
+    created: int = Field(default_factory=lambda: int(asyncio.get_event_loop().time()))
+    model: str
+    choices: List[Dict[str, Any]]  # format choices giống OpenAI
+    usage: Dict[str, Any] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    sources: List[Dict[str, Any]] = []  # field mở rộng của chúng ta
+```
+
+Lý do tại sao lại thiết kế chuẩn như vậy:
+
+1. **Tính tương thích (Compatibility)**:
+   - Client code đã viết cho OpenAI API có thể dễ dàng chuyển sang dùng API của chúng ta
+   - Các thư viện hỗ trợ OpenAI có thể làm việc với API của chúng ta mà không cần sửa đổi
+
+2. **Cấu trúc chuẩn (Standard Structure)**:
+   - `id`: Định danh unique cho mỗi response
+   - `object`: Xác định loại response
+   - `choices`: Array chứa các response có thể có
+   - `usage`: Thông tin về token usage
+
+3. **Mở rộng linh hoạt (Extensibility)**:
+   - Chúng ta thêm field `sources` để chứa metadata của các nguồn tham khảo
+   - Vẫn giữ được tính tương thích với OpenAI trong khi bổ sung thêm thông tin
+
+4. **Best Practice**:
+   - Follow chuẩn API của một platform lớn giúp đảm bảo tính professional
+   - Dễ dàng cho việc maintain và scale trong tương lai
+   - Dễ dàng cho việc documentation vì có thể tham chiếu tới docs của OpenAI
+
+Ví dụ response sẽ có dạng:
+```json
+{
+    "id": "chatcmpl-123abc...",
+    "object": "chat.completion",
+    "created": 1679789017,
+    "model": "gpt-3.5-turbo",
+    "choices": [{
+        "index": 0,
+        "message": {
+            "role": "assistant",
+            "content": "Nội dung trả lời..."
+        },
+        "finish_reason": "stop"
+    }],
+    "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0
+    },
+    "sources": [
+        {
+            "score": 0.92,
+            "source": "https://example.com/post1",
+            "author": "Tác giả 1",
+            "date": "2024-03-20"
+        }
+    ]
+}
+```
+
+```
+{
+    "id": "chatcmpl-9a31cca31d93e7823a50779a",
+    "object": "chat.completion",
+    "created": 22080132,
+    "model": "gpt-3.5-turbo-0125",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "Dạ, dưới đây là một số tài liệu về trí tuệ nhân tạo mà bạn có thể tham khảo:\n\n1. \"Artificial Intelligence: A Modern Approach\" của Stuart Russell và Peter Norvig - Đây là một trong những sách giáo trình phổ biến về trí tuệ nhân tạo, cung cấp kiến thức cơ bản và nâng cao về AI.\n\n2. \"Deep Learning\" của Ian Goodfellow, Yoshua Bengio và Aaron Courville - Sách này tập trung vào học sâu và mạng nơ-ron sâu, là một phần quan trọng của trí tuệ nhân tạo hiện đại.\n\n3. \"Python Machine Learning\" của Sebastian Raschka và Vahid Mirjalili - Cuốn sách này tập trung vào việc áp dụng machine learning bằng Python, một trong những ngôn ngữ phổ biến nhất trong lĩnh vực AI.\n\nNgoài ra, bạn cũng có thể tìm kiếm các tài liệu trên các trang web chuyên về AI như arXiv, Google Scholar, hoặc các trang web của các trường đại học và viện nghiên cứu uy tín. Chúc bạn tìm được những tài liệu phù hợp và hữu ích!"
+            },
+            "finish_reason": "stop"
+        }
+    ],
+    "usage": {
+        "completion_tokens": 350,
+        "prompt_tokens": 510,
+        "total_tokens": 860,
+        "completion_tokens_details": {
+            "accepted_prediction_tokens": 0,
+            "audio_tokens": 0,
+            "reasoning_tokens": 0,
+            "rejected_prediction_tokens": 0
+        },
+        "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0
+        }
+    },
+    "sources": [
+        {
+            "score": 0.64477754,
+            "source": "https://www.facebook.com/groups/3059387787464905/posts/9796987047038245",
+            "author": "Thanh Thảo",
+            "date": "2023-09-02T00:00:00"
+        },
+        {
+            "score": 0.5694277,
+            "source": "https://www.facebook.com/groups/3059387787464905/posts/10056032877800326",
+            "author": "Xuân Lê",
+            "date": "2023-10-10T00:00:00"
+        },
+        {
+            "score": 0.5516298,
+            "source": "https://www.facebook.com/groups/3059387787464905/posts/24474122478898126",
+            "author": "Minh Trần",
+            "date": "2024-01-17T00:00:00"
+        },
+        {
+            "score": 0.551009,
+            "source": "https://www.facebook.com/groups/3059387787464905/posts/24699366286373743",
+            "author": "Minh Trần",
+            "date": "2024-02-19T00:00:00"
+        },
+        {
+            "score": 0.551009,
+            "source": "https://www.facebook.com/groups/3059387787464905/posts/24699366286373743",
+            "author": "Minh Trần",
+            "date": "2024-02-19T00:00:00"
+        }
+    ]
+}
+```

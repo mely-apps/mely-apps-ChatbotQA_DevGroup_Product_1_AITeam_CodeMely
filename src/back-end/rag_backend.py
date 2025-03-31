@@ -40,6 +40,7 @@ class Config:
     HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
     EMBEDDINGS_MODEL_NAME = os.getenv("EMBEDDINGS_MODEL_NAME", "sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    MAX_SOURCES = 5  # Maximum number of sources to return
 
 # API Models
 class Message(BaseModel):
@@ -59,6 +60,7 @@ class ChatResponse(BaseModel):
     model: str
     choices: List[Dict[str, Any]]
     usage: Dict[str, Any] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    sources: List[Dict[str, Any]] = []  # List of sources with metadata
 
 # Create FastAPI app
 app = FastAPI(
@@ -138,8 +140,13 @@ async def shutdown_event():
     if qdrant_client:
         qdrant_client.close()
 
-def search_semantic(query: str, top_k: int = 5):
-    """Search for semantically similar documents"""
+def search_semantic(query: str, top_k: int = Config.MAX_SOURCES):
+    """Search for semantically similar documents
+    
+    Args:
+        query: Search query
+        top_k: Maximum number of results to return (default: 5)
+    """
     global embeddings, qdrant_client
     
     try:
@@ -150,7 +157,7 @@ def search_semantic(query: str, top_k: int = 5):
         search_results = qdrant_client.search(
             collection_name=Config.QDRANT_COLLECTION,
             query_vector=query_vector,
-            limit=top_k,
+            limit=top_k,  # Using Config.MAX_SOURCES
             with_payload=True,
             score_threshold=0.5
         )
@@ -287,39 +294,29 @@ async def chat_completions(request: ChatRequest):
                 }]
             )
         
-        # Extract context from search results
+        # Extract context and collect sources
         context = []
+        sources = []
+        
         for result in search_results:
             score = result.score
             payload = result.payload
-            content = payload.get("page_content", "")  # Keep as page_content
+            content = payload.get("page_content", "")
             metadata = payload.get("metadata", {})
             
-            # For high confidence results, return directly
-            if score >= 0.85:
-                logger.info(f"High confidence match found (score: {score})")
-                response_content = (
-                    f"{content}\n\n"
-                    f"(Nguồn: {metadata.get('link_post', 'Không rõ')}, "
-                    f"Tác giả: {metadata.get('author', 'Không rõ')}, "
-                    f"Ngày đăng: {metadata.get('date', 'Không rõ')})"
-                )
-                
-                return ChatResponse(
-                    model=request.model,
-                    choices=[{
-                        "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": response_content
-                        },
-                        "finish_reason": "stop"
-                    }]
-                )
-            
+            # Add to sources if score is good enough
             if score > 0.5:
                 context.append(content)
+                sources.append({
+                    "score": score,
+                    "source": metadata.get('link_post', 'Không rõ'),
+                    "author": metadata.get('author', 'Không rõ'),
+                    "date": metadata.get('date', 'Không rõ')
+                })
         
+        # Sort sources by score in descending order
+        sources.sort(key=lambda x: x["score"], reverse=True)
+
         # Step 3: Use OpenAI with context
         logger.info("Using OpenAI with context...")
         system_content = (
@@ -351,7 +348,8 @@ async def chat_completions(request: ChatRequest):
                 },
                 "finish_reason": openai_response.choices[0].finish_reason
             }],
-            usage=openai_response.usage.model_dump() if hasattr(openai_response, 'usage') else {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+            usage=openai_response.usage.model_dump() if hasattr(openai_response, 'usage') else {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            sources=sources  # Add all relevant sources
         )
         
     except Exception as e:

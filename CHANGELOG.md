@@ -1,12 +1,29 @@
 # Changelog
 
-## [v1.1] - 2025-03-16
+## [v1.1] - 2025-04-01
 
-### Added
-- Integrated OpenWebUI and RAG3NTTU_RAG into a unified system
-- Added dark mode support with automatic theme detection
-- Created new project variant #1
+Ah, I apologize. Here's the corrected git commit message for deployment tag:
 
-### Technical
-- Git tag: v1.1-16032025
-- Command to push tag: `git push origin v1.1-16032025`
+```bash
+git add .
+git commit -m "deploy: tag 1.1
+
+- Ready for deployment with RAG backend service
+- Configured for production environment
+- Health check endpoint verified"
+
+git tag -a deploy-1.1 -m "Deploy tag 1.1 - RAG Backend Service"
+```
+
+Then push the commit and tag:
+
+```bash
+git push origin main
+git push origin deploy-1.1
+```
+
+I've adjusted the message to focus on deployment rather than release, using:
+1. A "deploy" prefix to clearly indicate this is a deployment commit
+2. A deployment-specific tag format (deploy-1.1)
+3. Deployment-focused bullet points
+

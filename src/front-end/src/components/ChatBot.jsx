@@ -81,7 +81,8 @@ function ChatBot(props) {
   async function SendMessageChat() {
     if (promptInput !== "" && isLoading === false) {
       SetTimeOfRequest(0);
-      SetIsGen(true), SetPromptInput("");
+      SetIsGen(true);
+      SetPromptInput("");
       SetIsLoad(true);
       SetDataChat((prev) => [...prev, ["end", [promptInput, sourceData]]]);
       SetChatHistory((prev) => [promptInput, ...prev]);
@@ -89,63 +90,54 @@ function ChatBot(props) {
       logger.debug('Sending chat message', { prompt: promptInput, source: sourceData })
       logger.apiRequest('/api/v1/chat/completions', 'POST')
 
-      // Updated API call to use the new backend
-      fetch("/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [
-            {"role": "user", "content": promptInput}
-          ],
-          model: "gpt-3.5-turbo",
-          temperature: 0.3
-        })
-      })
-        .then((response) => {
-          logger.apiResponse('/api/v1/chat/completions', response.status)
-          return response.json()
-        })
-        .then((result) => {
-          // Extract the response content from the OpenAI-compatible format
-          const responseContent = result.choices[0].message.content;
-          logger.debug('Received chat response', { responseLength: responseContent.length })
-          
-          // Parse source documents if available (assuming they might be in the response)
-          let sourceDocuments = null;
-          try {
-            // Look for source documents in the response
-            const sourceMatch = responseContent.match(/\(Nguồn: (.*?)\)/);
-            if (sourceMatch) {
-              sourceDocuments = [{
-                metadata: {
-                  page: sourceMatch[1].includes("trang") ? 
-                    sourceMatch[1].replace(/[^0-9]/g, '') : undefined,
-                  title: sourceMatch[1].includes("trang") ? 
-                    "Sổ tay sinh viên 2023" : sourceMatch[1]
-                },
-                page_content: responseContent
-              }];
-            }
-          } catch (e) {
-            console.error("Error parsing source documents:", e);
-          }
-          
-          SetDataChat((prev) => [
-            ...prev,
-            ["start", [responseContent, sourceDocuments, sourceData]],
-          ]);
-          SetIsLoad(false);
-        })
-        .catch((error) => {
-          logger.error("API Error:", error);
-          SetDataChat((prev) => [
-            ...prev,
-            ["start", ["Lỗi, không thể kết nối với server", null]],
-          ]);
-          SetIsLoad(false);
+      try {
+        const response = await fetch("/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: [
+              {"role": "user", "content": promptInput}
+            ],
+            model: "gpt-3.5-turbo",
+            temperature: 0.3
+          })
         });
+
+        logger.apiResponse('/api/v1/chat/completions', response.status);
+        const result = await response.json();
+
+        // Extract content and sources from response
+        const responseContent = result.choices[0].message.content;
+        const sources = result.sources || [];
+
+        // Format sources for display
+        const formattedSources = sources.map(source => ({
+          metadata: {
+            title: source.source?.split('/').pop() || 'Không rõ nguồn',
+            source: source.source,
+            author: source.author,
+            date: source.date
+          },
+          source: source.source,
+          page_content: responseContent
+        }));
+
+        SetDataChat((prev) => [
+          ...prev,
+          ["start", [responseContent, formattedSources.length > 0 ? formattedSources : null, sourceData]],
+        ]);
+
+      } catch (error) {
+        logger.error("API Error:", error);
+        SetDataChat((prev) => [
+          ...prev,
+          ["start", ["Lỗi, không thể kết nối với server", null]],
+        ]);
+      } finally {
+        SetIsLoad(false);
+      }
     }
   }
 
@@ -161,11 +153,21 @@ function ChatBot(props) {
     text: ``,
   });
   const handleReferenceClick = (sources, sourceType) => {
+    // Lấy đúng URL từ source object
+    const sourceUrl = sources.metadata.source || sources.source;
+    
+    // Kiểm tra và mở URL trong tab mới
+    if (sourceUrl && sourceUrl !== 'Không rõ') {
+      window.open(sourceUrl, '_blank', 'noopener,noreferrer');
+      return; // Thoát sớm nếu đã mở URL
+    }
+
+    // Nếu không có URL, hiển thị modal với thông tin chi tiết
     SetReference({
-      title:
-        sources.metadata.page==undefined ? "Sổ tay luật pháp" : "Trang " + sources.metadata.page + " (Luật)",
-      source: "RAG Database",
-      url: "https://example.com/legal-reference",
+      title: sources.metadata.title || "Không rõ nguồn",
+      source: sourceUrl || "#",
+      author: sources.metadata.author || "Không rõ",
+      date: sources.metadata.date || "Không rõ",
       text: sources.page_content,
     });
   };
@@ -298,22 +300,20 @@ function ChatBot(props) {
                       <>
                         <div className="divider m-0"></div>
                         <p className={`font-semibold text-sm ${isDarkMode ? 'text-gray-300' : ''}`}>
-                          Tham khảo:{" "}
+                          Nguồn tham khảo:{" "}
                           {dataMessages[1][1].map((source, j) => (
-                            <label
-                              htmlFor="my_modal_6"
-                              className={`kbd kbd-xs mr-1 hover:bg-sky-300 cursor-pointer ${isDarkMode ? 'text-gray-300' : ''}`}
-                              onClick={() =>
-                                handleReferenceClick(source, dataMessages[1][2])
-                              }
-                              key={j}
-                            >
-                              {dataMessages[1][2] == "wiki"
-                                ? source.metadata.title
-                                : source.metadata.page==undefined? "Sổ tay sinh viên 2023" : "Trang " +
-                                  source.metadata.page +
-                                  " (sổ tay SV)"}
-                            </label>
+                            <div key={j} className="mt-1">
+                              <label
+                                className={`kbd kbd-sm mr-1 hover:bg-sky-300 cursor-pointer ${isDarkMode ? 'text-gray-300' : ''}`}
+                                onClick={() => handleReferenceClick(source, dataMessages[1][2])}
+                              >
+                                {source.metadata.title || "Nguồn " + (j + 1)}
+                                <span className="text-xs ml-1">
+                                  {source.metadata.author && ` • ${source.metadata.author}`}
+                                  {source.metadata.date && ` • ${source.metadata.date}`}
+                                </span>
+                              </label>
+                            </div>
                           ))}
                         </p>
                       </>
