@@ -20,7 +20,7 @@ function ChatBot(props) {
     [
       "start",
       [
-        "Xin chào! Tôi là trợ lý CodeMely AI BotChat của Dev Ơi Mình Đi Đâu Thế, được phát triển bởi đội ngũ AI CodeMely. Bạn có thể hỏi tôi bất kỳ câu hỏi nào về Luật biển và Quy tắc tránh va quốc tế. Tôi sẽ giúp bạn tìm kiếm thông tin chính xác nhất. 😊",
+        "Chào cậu! Tớ là trợ lý CodeMely AI BotChat của Dev Ơi Mình Đi Đâu Thế, được phát triển bởi đội ngũ AI CodeMely. Cậu có thể hỏi tôi bất kỳ câu hỏi nào về Công nghệ, Lập trình, Học tập, và nhiều hơn nữa. Tớ sẽ giúp bạn tìm kiếm thông tin chính xác nhất. 😊",
         null,
       ],
     ],
@@ -31,7 +31,8 @@ function ChatBot(props) {
   const [chatSessions, setChatSessions] = useState([
     { id: 'current', title: 'Cuộc trò chuyện hiện tại', messages: [] },
     { id: 'past1', title: 'Team AI CodeMely', messages: [] },
-    { id: 'past2', title: 'Quy định vùng đặc quyền kinh tế', messages: [] },
+    { id: 'past2', title: 'Nên học sâu hay học rộng trong lĩnh vực công nghệ', messages: [] },
+    { id: 'past3', title: 'Kinh nghiệm làm việc tại Big Tech', messages: [] },
   ]);
   const [activeChatId, setActiveChatId] = useState('current');
 

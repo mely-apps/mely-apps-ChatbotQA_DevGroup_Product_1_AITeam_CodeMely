@@ -28,7 +28,7 @@ I've adjusted the message to focus on deployment rather than release, using:
 3. Deployment-focused bullet points
 
 
-# ver 1.2 
+# ver 1.2
 
 git tag -a v1.2 -m "Version 1.2 - Enhanced RAG Sources
 
@@ -48,3 +48,16 @@ Frontend Updates:
 - Enhanced error handling
 
 This version marks a significant improvement in source handling and user interaction."
+
+
++++ Update Avatar dep cho ca team AI Production
+
+---
+deploy backend: sau 3h hôm tuần trước. 
+deploy sau gần 3h rưỡi 
+22h30 31/3 - 2h 01/04
+deploy backend: sau 3h hôm tuần trước. 
+deploy sau gần 3h rưỡi 
+---
+22h30 31/3 - 2h 01/04
+Tổng 8h cho deploy version 1.2
